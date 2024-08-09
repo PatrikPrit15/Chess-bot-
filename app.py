@@ -69,7 +69,7 @@ def validator(y,x):
 				return 1
 		elif y-sur[1]>1:
 			return 0
-		elif abs(sur[0]-x)>1:
+		elif abs(sur[0]-x)>0:
 			return 0
 		if sur[0]!=x and (pole[y][x][0]==0 and y!=empasant[1] and x!=empasant[0]):
 			return 0
@@ -93,4 +93,38 @@ def validator(y,x):
 			if sur[0]+h*i==x and sur[1]+v*i==y:
 				break
 			if pole[sur[1]+v*i][sur[0]+h*i][0]!=0:
+				return 0
+	if pole[sur[1]][sur[0]][0] in [4,10]:#veza
+		if x==sur[0] and y!=sur[1]:
+			if any(pole[i][x][0]!=0 for i in range(min(y, sur[1]) + 1, max(y, sur[1]))):
+				return 0
+		elif x!=sur[0] and y==sur[1]:
+			if any(pole[y][i][0]!=0 for i in range(min(x, sur[0]) + 1, max(x, sur[0]))):
+				return 0
+		else:
+			return 0
+
+	if pole[sur[1]][sur[0]][0] in [5,11]:#kralovna
+		if abs(x - sur[0]) == abs(y - sur[1]):#je strelec
+			h,v=1 if x-sur[0]>0 else -1, 1 if y-sur[1]>0 else -1 
+			for i in range(1,10):
+				if sur[0]+h*i==x and sur[1]+v*i==y:
+					break
+				if pole[sur[1]+v*i][sur[0]+h*i][0]!=0:
+					return 0
+
+		elif x==sur[0] and y!=sur[1]: #je veza
+			if any(pole[i][x][0] != 0 for i in range(min(y, sur[1]) + 1, max(y, sur[1]))):
+				return 0
+		elif x!=sur[0] and y==sur[1]:
+			if any(pole[y][i][0] != 0 for i in range(min(x, sur[0]) + 1, max(x, sur[0]))):
+				return 0
+		else:
+			return 0
+
+	if pole[sur[1]][sur[0]][0]==6:#kralb
+		if abs(y-sur[1])>1 or abs(x-sur[0])>1:
+			if y-sur[1]!=0:
+				return 0
+			if rbl==0 and rbp==0:
 				return 0
