@@ -22,7 +22,7 @@ def define_board():
 
 def validator(y,x):
 	global rbl,rbp,rcl,rcp,pole,empasant
-	if pole[7][4][0]!=6:rbl,rbp=0,0
+	if pole[7][4][0]!=6:rbl,rbp=1,0
 	if pole[7][0][0]!=4:rbl=0
 	if pole[7][7][0]!=4:rbp=0
 	if pole[0][4][0]!=12:rcl,rcp=0,0
@@ -32,7 +32,7 @@ def validator(y,x):
 		return 0
 
 	if pole[sur[1]][sur[0]][0]==1:#biely pesiak
-		if sur[1]-y<=0:
+		if sur[1]-y>=0:
 			return 0
 		if sur[0]==x:
 			if pole[y][x][0]!=0 or pole[max(0,sur[1]-1)][sur[0]][0]!=0:
@@ -44,7 +44,7 @@ def validator(y,x):
 			if sur[1]-y==2:
 				empasant=[x,y+1]
 				return 1
-		elif sur[1]-y>1:
+		elif sur[1]+y>1:
 			return 0
 		elif abs(sur[0]-x)>1:
 			return 0
@@ -54,3 +54,43 @@ def validator(y,x):
 			pole[empasant[1]+1][empasant[0]][0]=0
 		if y==0:
 			pole[sur[1]][sur[0]][0]=5
+	if pole[sur[1]][sur[0]][0]==7:#cierny pesiak
+		if y-sur[1]<=0:
+			return 0
+		if sur[0]==x:
+			if pole[y][x][0]!=0 or pole[min(7,sur[1]+1)][sur[0]][0]!=0:
+				return 0
+			if y-sur[1]>1 and sur[1]!=1:
+				return 0
+			if y-sur[1]>2:
+				return 0
+			if y-sur[1]==2:
+				empasant=[x,y-1]
+				return 1
+		elif y-sur[1]>1:
+			return 0
+		elif abs(sur[0]-x)>1:
+			return 0
+		if sur[0]!=x and (pole[y][x][0]==0 and y!=empasant[1] and x!=empasant[0]):
+			return 0
+		if (y==empasant[1] and x==empasant[0]):
+			pole[empasant[1]-1][empasant[0]][0]=0
+		if y == 7:
+			pole[sur[1]][sur[0]][0] = 11
+
+
+	empasant=[-1,-1]
+	if pole[sur[1]][sur[0]][0] in [2, 8]: #kon
+		if abs(x - sur[0]) != 1 or abs(y - sur[1]) != 2:
+			if abs(x - sur[0]) != 2 or abs(y - sur[1]) != 1: 
+				return 0
+
+	if pole[sur[1]][sur[0]][0] in [3,9]:#strelec
+		if abs(x-sur[0])!=abs(y-sur[1]):
+			return 0
+		h,v=1 if x-sur[0]>0 else 1,-1 if y-sur[1]>0 else -1
+		for i in range(1,10):
+			if sur[0]+h*i==x and sur[1]+v*i==y:
+				break
+			if pole[sur[1]+v*i][sur[0]+h*i][0]!=0:
+				return 0
