@@ -1,4 +1,6 @@
+import matplotlib.pyplot as plt
 import tkinter as tk
+import neat
 # nic-0, pesiakb-1, konb-2, strelecb-3, vezab-4, kralovnab-5, kralb-6,pesiakc-7, konc-8, strelecc-9, vezac-10, kralovnac-11, kralc-12
 
 
@@ -149,3 +151,40 @@ def validator(y,x):
 				pole[0][3][0]=10
 
 	return 1
+
+
+
+def eval_genomes(genomes, config):
+	global gen, pole, sur, max_counter
+	gen += 1
+	# start by creating lists holding the genome itself, the
+	# neural network associated with the genome
+	nets = []
+	ge = []
+	for genome_id, genome in genomes:
+		genome.fitness = 0  # start with fitness level of 0
+		net = neat.nn.FeedForwardNetwork.create(genome, config)
+		nets.append(net)
+		ge.append(genome)
+
+	lmax_counter = 0
+	for index1 in range(30):
+		for index2 in range(1):
+			if index1 == index2:
+				continue
+			counter = 0
+			define_board()
+			while last_move > 0:
+				pole_bool = tuple(pos == elem for pole_pos in pole for pos, _ in pole_pos for elem in [
+								  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+				output = nets[index1].activate(pole_bool)
+				sur = [output[:64].index(max(output[:64])) %
+					   8, output[:64].index(max(output[:64]))//8]
+				if pole[sur[1]][sur[0]][0] == 0 or pole[sur[1]][sur[0]][0] > 6 or [output[64:].index(max(output[64:])) % 8, output[64:].index(max(output[64:]))//8] == [sur[0], sur[1]] or not(validator(output[64:].index(max(output[64:])) // 8, output[64:].index(max(output[64:]))%8)):
+					ge[index1].fitness -= 1
+					ge[index2].fitness += 0.5
+					break
+				pole[output[64:].index(max(output[64:])) % 8][output[64:].index(
+					max(output[64:]))//8][0] = pole[sur[1]][sur[0]][0]
+				pole[sur[1]][sur[0]][0] = 0
+				counter += 1
