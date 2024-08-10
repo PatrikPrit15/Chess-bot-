@@ -9,7 +9,7 @@ class Game:
 
         # nic-0, pesiakb-1, konb-2, strelecb-3, vezab-4, kralovnab-5, kralb-6,pesiakc-7, konc-8, strelecc-9, vezac-10, kralovnac-11, kralc-12
         self.board = [
-            [[10, 0], [8, 0], [9, 0], [11, 0], [12, 0], [9, 0], [8, 0], [10, 0]],
+            [[10, 0], [8, 0], [9, 0], [12, 0], [11, 0], [9, 0], [8, 0], [10, 0]],
             [[7, 0] for _ in range(8)],
             [[0, 0] for _ in range(8)],
             [[0, 0] for _ in range(8)],
@@ -39,8 +39,8 @@ class Game:
             farba = not farba
             for x in range(8):
                 self.canvas.create_rectangle(
-                    50 + x * 90,
-                    50 + y * 90,
+                    55 + x * 90,
+                    55 + y * 90,
                     140 + x * 90,
                     140 + y * 90,
                     fill="#573a2e" if farba else "#fccc74",
@@ -53,7 +53,7 @@ class Game:
             for x in range(8):
                 if self.board[y][x][0] > 0:
                     self.board[y][x][1] = self.canvas.create_image(
-                        95 + 90 * x,
+                        90 + 90 * x,
                         95 + 90 * y,
                         image=self.images[self.board[y][x][0] - 1],
                     )
@@ -68,3 +68,18 @@ class Game:
             for b in range(8):
                 self.canvas.delete(self.board[a][b][1])
         self.init_board()
+    def klik(self, event):
+        if 0 <= (event.y - 50) // 90 <= 7 and 0 <= (event.x - 50) // 90 <= 7:
+            self.sur[0] = (event.x - 50) // 90
+            self.sur[1] = (event.y - 50) // 90
+
+    def drag(self, event):
+        if 0 <= (event.y - 50) // 90 < 7 and 0 <= (event.x - 50) // 90 <= 7:
+            self.canvas.coords(
+                self.board[self.sur[1]][self.sur[0]][1], event.x, event.y
+            )
+
+    def release(self, event):
+        if self.board[self.sur[1]][self.sur[0]][0] > 6:
+            self.update_board()
+            return 0
