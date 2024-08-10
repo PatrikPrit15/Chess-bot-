@@ -58,3 +58,13 @@ class Game:
                         image=self.images[self.board[y][x][0] - 1],
                     )
         self.canvas.update()
+    def loadimages(self):
+        import tkinter as tk
+
+        return [tk.PhotoImage(file=f"{i}.png") for i in range(1, 13)]
+
+    def update_board(self):
+        for a in range(8):
+            for b in range(8):
+                self.canvas.delete(self.board[a][b][1])
+        self.init_board()
