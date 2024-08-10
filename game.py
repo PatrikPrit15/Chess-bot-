@@ -32,3 +32,29 @@ class Game:
         self.canvas.bind("<B1-Motion>", self.drag)
         self.canvas.bind("<ButtonRelease-1>", self.release)
         self.canvas.mainloop()
+
+    def create_board(self):
+        farba = 1
+        for y in range(8):
+            farba = not farba
+            for x in range(8):
+                self.canvas.create_rectangle(
+                    50 + x * 90,
+                    50 + y * 90,
+                    140 + x * 90,
+                    140 + y * 90,
+                    fill="#573a2e" if farba else "#fccc74",
+                )
+                farba = not farba
+                self.canvas.update()
+
+    def init_board(self):
+        for y in range(8):
+            for x in range(8):
+                if self.board[y][x][0] > 0:
+                    self.board[y][x][1] = self.canvas.create_image(
+                        95 + 90 * x,
+                        95 + 90 * y,
+                        image=self.images[self.board[y][x][0] - 1],
+                    )
+        self.canvas.update()
