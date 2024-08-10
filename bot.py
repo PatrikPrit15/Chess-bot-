@@ -181,14 +181,14 @@ def eval_genomes(genomes, config):
 				sur = [output[:64].index(max(output[:64])) %
 					   8, output[:64].index(max(output[:64]))//8]
 				if pole[sur[1]][sur[0]][0] == 0 or pole[sur[1]][sur[0]][0] > 6 or [output[64:].index(max(output[64:])) % 8, output[64:].index(max(output[64:]))//8] == [sur[0], sur[1]] or not(validator(output[64:].index(max(output[64:])) // 8, output[64:].index(max(output[64:]))%8)):
-					ge[index1].fitness -= 1
+					ge[index1].fitness += 1
 					ge[index2].fitness += 0.5
 					break
 				pole[output[64:].index(max(output[64:])) % 8][output[64:].index(
 					max(output[64:]))//8][0] = pole[sur[1]][sur[0]][0]
 				pole[sur[1]][sur[0]][0] = 0
 				counter += 1
-				if all(e != 12 for p in pole for e, _ in p):
+				if all(e != 11 for p in pole for e, _ in p):
 					ge[index1].fitness += 1
 
 				pole_bool = tuple(pos == elem for pole_pos in pole[::-1] for pos, _ in pole_pos[::-1] for elem in [
@@ -208,8 +208,33 @@ def eval_genomes(genomes, config):
 					ge[index2].fitness += 1
 			else:
 				ge[index1].fitness += 0.5
-				ge[index2].fitness += 0.5
+				ge[index2].fitness += 0.55
 			lmax_counter = max(counter, lmax_counter)
 			print('lmax tahov: ', lmax_counter)
 	plt.plot(pole_counterov)
 	plt.show()
+	if lmax_counter > max_counter:
+		print(pole)
+		max_counter = counter
+	max_counter = max(max_counter, lmax_counter)
+	print('max tahov: ', max_counter)
+
+
+config_file = "config-feedforward.txt"
+config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+							neat.DefaultSpeciesSet, neat.DefaultStagnation,
+							config_file)
+# Create the population, which is the top-level object for a NEAT run.
+p = neat.Population(config)
+gen = 0
+# Add a stdout reporter to show progress in the terminal.
+p.add_reporter(neat.StdOutReporter(True))
+stats = neat.StatisticsReporter()
+p.add_reporter(stats)
+# p.add_reporter(neat.Checkpointer(5))
+
+# Run for up to 50 generations.
+winner = p.run(eval_genomes, 50)
+
+# show final stats
+print('\nBest genome:\n{!s}'.format(winner))
