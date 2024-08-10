@@ -80,12 +80,12 @@ def validator(y,x):
 
 
 	empasant=[-1,-1]
-	if pole[sur[1]][sur[0]][0] in [2, 8]: #kon
+	if pole[sur[1]][sur[0]][0] in [2, 8]: # kon
 		if abs(x - sur[0]) != 1 or abs(y - sur[1]) != 2:
 			if abs(x - sur[0]) != 2 or abs(y - sur[1]) != 1: 
 				return 0
 
-	if pole[sur[1]][sur[0]][0] in [3,9]:#strelec
+	if pole[sur[1]][sur[0]][0] in [3,9]: # strelec
 		if abs(x-sur[0])!=abs(y-sur[1]):
 			return 0
 		h,v=1 if x-sur[0]>0 else 1,-1 if y-sur[1]>0 else -1
@@ -94,7 +94,7 @@ def validator(y,x):
 				break
 			if pole[sur[1]+v*i][sur[0]+h*i][0]!=0:
 				return 0
-	if pole[sur[1]][sur[0]][0] in [4,10]:#veza
+	if pole[sur[1]][sur[0]][0] in [4,10]: # veza
 		if x==sur[0] and y!=sur[1]:
 			if any(pole[i][x][0]!=0 for i in range(min(y, sur[1]) + 1, max(y, sur[1]))):
 				return 0
@@ -104,7 +104,7 @@ def validator(y,x):
 		else:
 			return 0
 
-	if pole[sur[1]][sur[0]][0] in [5,11]:#kralovna
+	if pole[sur[1]][sur[0]][0] in [5,11]: # kralovna
 		if abs(x - sur[0]) == abs(y - sur[1]):#je strelec
 			h,v=1 if x-sur[0]>0 else -1, 1 if y-sur[1]>0 else -1 
 			for i in range(1,10):
@@ -122,9 +122,30 @@ def validator(y,x):
 		else:
 			return 0
 
-	if pole[sur[1]][sur[0]][0]==6:#kralb
+	if pole[sur[1]][sur[0]][0]==6: # kralb
 		if abs(y-sur[1])>1 or abs(x-sur[0])>1:
 			if y-sur[1]!=0:
 				return 0
 			if rbl==0 and rbp==0:
 				return 0
+
+	if pole[sur[1]][sur[0]][0]==12: # kralc
+		if abs(y-sur[1])>1 or abs(x-sur[0])>1:
+			if y-sur[1]!=0:
+				return 0
+			if rcl==0 and rcp==0:
+				return 0
+			if abs(x-sur[0])!=2:
+				return 0
+			if x>sur[0]:
+				if not rcp or any([pole[0][i][0]!=0 for i in range(5,7)]):
+					return 0
+				pole[0][7][0]=0
+				pole[0][5][0]=10
+			else:
+				if not rcl or any([pole[0][i][0]!=0 for i in range(1,4)]):
+					return 0
+				pole[0][0][0]=0
+				pole[0][3][0]=10
+
+	return 1
