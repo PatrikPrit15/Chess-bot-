@@ -24,7 +24,7 @@ def define_board():
 
 def validator(y,x):
 	global rbl,rbp,rcl,rcp,pole,empasant
-	if pole[7][4][0]!=6:rbl,rbp=1,0
+	if pole[7][4][0]!=6:rbl,rbp=0,0
 	if pole[7][0][0]!=4:rbl=0
 	if pole[7][7][0]!=4:rbp=0
 	if pole[0][4][0]!=12:rcl,rcp=0,0
@@ -34,7 +34,7 @@ def validator(y,x):
 		return 0
 
 	if pole[sur[1]][sur[0]][0]==1:#biely pesiak
-		if sur[1]-y>=0:
+		if sur[1]-y<=0:
 			return 0
 		if sur[0]==x:
 			if pole[y][x][0]!=0 or pole[max(0,sur[1]-1)][sur[0]][0]!=0:
@@ -46,7 +46,7 @@ def validator(y,x):
 			if sur[1]-y==2:
 				empasant=[x,y+1]
 				return 1
-		elif sur[1]+y>1:
+		elif sur[1]-y>1:
 			return 0
 		elif abs(sur[0]-x)>1:
 			return 0
@@ -56,6 +56,7 @@ def validator(y,x):
 			pole[empasant[1]+1][empasant[0]][0]=0
 		if y==0:
 			pole[sur[1]][sur[0]][0]=5
+
 	if pole[sur[1]][sur[0]][0]==7:#cierny pesiak
 		if y-sur[1]<=0:
 			return 0
@@ -71,7 +72,7 @@ def validator(y,x):
 				return 1
 		elif y-sur[1]>1:
 			return 0
-		elif abs(sur[0]-x)>0:
+		elif abs(sur[0]-x)>1:
 			return 0
 		if sur[0]!=x and (pole[y][x][0]==0 and y!=empasant[1] and x!=empasant[0]):
 			return 0
@@ -82,21 +83,22 @@ def validator(y,x):
 
 
 	empasant=[-1,-1]
-	if pole[sur[1]][sur[0]][0] in [2, 8]: # kon
+	if pole[sur[1]][sur[0]][0] in [2, 8]: #kon
 		if abs(x - sur[0]) != 1 or abs(y - sur[1]) != 2:
 			if abs(x - sur[0]) != 2 or abs(y - sur[1]) != 1: 
 				return 0
 
-	if pole[sur[1]][sur[0]][0] in [3,9]: # strelec
+	if pole[sur[1]][sur[0]][0] in [3,9]:#strelec
 		if abs(x-sur[0])!=abs(y-sur[1]):
 			return 0
-		h,v=1 if x-sur[0]>0 else 1,-1 if y-sur[1]>0 else -1
+		h,v=1 if x-sur[0]>0 else -1,1 if y-sur[1]>0 else -1
 		for i in range(1,10):
 			if sur[0]+h*i==x and sur[1]+v*i==y:
 				break
 			if pole[sur[1]+v*i][sur[0]+h*i][0]!=0:
 				return 0
-	if pole[sur[1]][sur[0]][0] in [4,10]: # veza
+
+	if pole[sur[1]][sur[0]][0] in [4,10]:#veza
 		if x==sur[0] and y!=sur[1]:
 			if any(pole[i][x][0]!=0 for i in range(min(y, sur[1]) + 1, max(y, sur[1]))):
 				return 0
@@ -106,7 +108,7 @@ def validator(y,x):
 		else:
 			return 0
 
-	if pole[sur[1]][sur[0]][0] in [5,11]: # kralovna
+	if pole[sur[1]][sur[0]][0] in [5,11]:#kralovna
 		if abs(x - sur[0]) == abs(y - sur[1]):#je strelec
 			h,v=1 if x-sur[0]>0 else -1, 1 if y-sur[1]>0 else -1 
 			for i in range(1,10):
@@ -124,14 +126,26 @@ def validator(y,x):
 		else:
 			return 0
 
-	if pole[sur[1]][sur[0]][0]==6: # kralb
+	if pole[sur[1]][sur[0]][0]==6:#kralb
 		if abs(y-sur[1])>1 or abs(x-sur[0])>1:
 			if y-sur[1]!=0:
 				return 0
 			if rbl==0 and rbp==0:
 				return 0
+			if abs(x-sur[0])!=2:
+				return 0
+			if x>sur[0]:
+				if not rbp or any([pole[7][i][0]!=0 for i in range(5,7)]):
+					return 0
+				pole[7][7][0]=0
+				pole[7][5][0]=4
+			else:
+				if not rbl or any([pole[7][i][0]!=0 for i in range(1,4)]):
+					return 0
+				pole[7][0][0]=0
+				pole[7][3][0]=4
 
-	if pole[sur[1]][sur[0]][0]==12: # kralc
+	if pole[sur[1]][sur[0]][0]==12:#kralc
 		if abs(y-sur[1])>1 or abs(x-sur[0])>1:
 			if y-sur[1]!=0:
 				return 0
@@ -153,6 +167,8 @@ def validator(y,x):
 	return 1
 
 
+max_counter = 0
+
 
 def eval_genomes(genomes, config):
 	global gen, pole, sur, max_counter
@@ -168,7 +184,7 @@ def eval_genomes(genomes, config):
 		ge.append(genome)
 
 	lmax_counter = 0
-	for index1 in range(40):
+	for index1 in range(30):
 		for index2 in range(1):
 			if index1 == index2:
 				continue
@@ -181,14 +197,14 @@ def eval_genomes(genomes, config):
 				sur = [output[:64].index(max(output[:64])) %
 					   8, output[:64].index(max(output[:64]))//8]
 				if pole[sur[1]][sur[0]][0] == 0 or pole[sur[1]][sur[0]][0] > 6 or [output[64:].index(max(output[64:])) % 8, output[64:].index(max(output[64:]))//8] == [sur[0], sur[1]] or not(validator(output[64:].index(max(output[64:])) // 8, output[64:].index(max(output[64:]))%8)):
-					ge[index1].fitness += 1
+					ge[index1].fitness -= 1
 					ge[index2].fitness += 0.5
 					break
 				pole[output[64:].index(max(output[64:])) % 8][output[64:].index(
 					max(output[64:]))//8][0] = pole[sur[1]][sur[0]][0]
 				pole[sur[1]][sur[0]][0] = 0
 				counter += 1
-				if all(e != 11 for p in pole for e, _ in p):
+				if all(e != 12 for p in pole for e, _ in p):
 					ge[index1].fitness += 1
 
 				pole_bool = tuple(pos == elem for pole_pos in pole[::-1] for pos, _ in pole_pos[::-1] for elem in [
@@ -208,13 +224,13 @@ def eval_genomes(genomes, config):
 					ge[index2].fitness += 1
 			else:
 				ge[index1].fitness += 0.5
-				ge[index2].fitness += 0.55
+				ge[index2].fitness += 0.5
 			lmax_counter = max(counter, lmax_counter)
 			print('lmax tahov: ', lmax_counter)
-	plt.plot(pole_counterov)
-	plt.show()
+	# plt.plot(pole_counterov)
+	# plt.show()
 	if lmax_counter > max_counter:
-		print(pole)
+    		print(pole)
 		max_counter = counter
 	max_counter = max(max_counter, lmax_counter)
 	print('max tahov: ', max_counter)
