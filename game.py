@@ -51,7 +51,7 @@ class Game:
     def init_board(self):
         for y in range(8):
             for x in range(8):
-                if self.board[y][x][0] > 0:
+                if self.board[y][x][0] >= 0:
                     self.board[y][x][1] = self.canvas.create_image(
                         90 + 90 * x,
                         95 + 90 * y,
@@ -82,4 +82,28 @@ class Game:
     def release(self, event):
         if self.board[self.sur[1]][self.sur[0]][0] > 6:
             self.update_board()
+            return 0
+        if (
+            0 <= (event.y - 50) // 90 <= 7
+            and 0 <= (event.x - 50) // 90 <= 7
+            and self.board[self.sur[1]][self.sur[0]][0] != 0
+            and self.validator((event.y - 50) // 90, (event.x - 50) // 90)
+        ):
+            self.board[(event.y - 50) // 90][(event.x - 50) // 90][0] = self.board[
+                self.sur[1]
+            ][self.sur[0]][0]
+            if (event.y - 50) // 90 != self.sur[1] or (event.x - 50) // 90 != self.sur[
+                0
+            ]:
+                self.board[self.sur[1]][self.sur[0]][0] = 0
+                self.ai_move()
+        self.update_board()
+
+    def valid(self, y, x):
+        if (
+            0 < self.board[self.sur[1]][self.sur[0]][0] < 7
+            and 0 < self.board[y][x][0] < 7
+            or self.board[self.sur[1]][self.sur[0]][0] > 6
+            and self.board[y][x][0] > 6
+        ):  # su rovnaka farba
             return 0
