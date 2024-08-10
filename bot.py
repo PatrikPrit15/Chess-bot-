@@ -168,7 +168,7 @@ def eval_genomes(genomes, config):
 		ge.append(genome)
 
 	lmax_counter = 0
-	for index1 in range(30):
+	for index1 in range(40):
 		for index2 in range(1):
 			if index1 == index2:
 				continue
@@ -188,3 +188,28 @@ def eval_genomes(genomes, config):
 					max(output[64:]))//8][0] = pole[sur[1]][sur[0]][0]
 				pole[sur[1]][sur[0]][0] = 0
 				counter += 1
+				if all(e != 12 for p in pole for e, _ in p):
+					ge[index1].fitness += 1
+
+				pole_bool = tuple(pos == elem for pole_pos in pole[::-1] for pos, _ in pole_pos[::-1] for elem in [
+								  0, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6])
+				output = nets[index2].activate(pole_bool)
+				sur = [output[:64].index(max(output[:64])) %
+					   8, output[:64].index(max(output[:64]))//8]
+				if pole[sur[1]][sur[0]][0] == 0 or pole[sur[1]][sur[0]][0] <= 6 or [output[64:].index(max(output[64:])) % 8,output[64:].index(max(output[64:]))//8] == [sur[1],sur[0]] or not(validator(output[64:].index(max(output[64:])) % 8, output[64:].index(max(output[64:]))//8)):
+					ge[index1].fitness += 0.5
+					ge[index2].fitness -= 1
+					break
+				counter += 1
+				pole[output[64:].index(max(output[64:])) % 8][output[64:].index(
+					max(output[64:]))//8][0] = pole[sur[1]][sur[0]][0]
+				pole[sur[1]][sur[0]][0] = 0
+				if all(e != 6 for p in pole for e, _ in p):
+					ge[index2].fitness += 1
+			else:
+				ge[index1].fitness += 0.5
+				ge[index2].fitness += 0.5
+			lmax_counter = max(counter, lmax_counter)
+			print('lmax tahov: ', lmax_counter)
+	plt.plot(pole_counterov)
+	plt.show()
