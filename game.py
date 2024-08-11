@@ -107,3 +107,56 @@ class Game:
             and self.board[y][x][0] > 6
         ):  # su rovnaka farba
             return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 1:  # biely pesiak
+            if self.sur[1] - y <= 0:
+                return 0
+            if self.sur[0] == x:
+                if (
+                    self.board[y][x][0] != 0
+                    or self.board[max(0, self.sur[1] - 1)][self.sur[0]][0] != 0
+                ):
+                    return 0
+                if self.sur[1] - y > 1 and self.sur[1] != 6:
+                    return 0
+                if self.sur[1] - y > 2:
+                    return 0
+                if self.sur[1] - y == 2:
+                    return 1
+            elif self.sur[1] - y > 1:
+                return 0
+            elif abs(self.sur[0] - x) > 1:
+                return 0
+            if self.sur[0] != x and (
+                self.board[y][x][0] == 0
+                and (y != self.empasant[1] and x != self.empasant[0])
+            ):
+                return 0
+            if y == 0:
+                self.board[self.sur[1]][self.sur[0]][0] = 5
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 7:  # cierny pesiak
+            if y - self.sur[1] <= 0:
+                return 0
+            if self.sur[0] == x:
+                if (
+                    self.board[y][x][0] != 0
+                    or self.board[min(7, self.sur[1] + 1)][self.sur[0]][0] != 0
+                ):
+                    return 0
+                if y - self.sur[1] > 1 and self.sur[1] != 1:
+                    return 0
+                if y - self.sur[1] > 2:
+                    return 0
+                if y - self.sur[1] == 2:
+                    return 1
+            elif y - self.sur[1] > 1:
+                return 0
+            elif abs(self.sur[0] - x) > 1:
+                return 0
+            if self.sur[0] != x and (
+                self.board[y][x][0] == 0
+                and y != self.empasant[1]
+                and x != self.empasant[0]
+            ):
+                return 0
