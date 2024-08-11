@@ -69,7 +69,7 @@ class Game:
                 self.canvas.delete(self.board[a][b][1])
         self.init_board()
     def klik(self, event):
-        if 0 <= (event.y - 50) // 90 <= 7 and 0 <= (event.x - 50) // 90 <= 7:
+        if 0 <= (event.y - 50) // 90 < 7 and 0 <= (event.x - 50) // 90 < 7:
             self.sur[0] = (event.x - 50) // 90
             self.sur[1] = (event.y - 50) // 90
 
@@ -101,7 +101,7 @@ class Game:
 
     def valid(self, y, x):
         if (
-            0 < self.board[self.sur[1]][self.sur[0]][0] < 7
+            0 < self.board[self.sur[1]][self.sur[0]][0] <= 7
             and 0 < self.board[y][x][0] < 7
             or self.board[self.sur[1]][self.sur[0]][0] > 6
             and self.board[y][x][0] > 6
@@ -109,7 +109,7 @@ class Game:
             return 0
 
         if self.board[self.sur[1]][self.sur[0]][0] == 1:  # biely pesiak
-            if self.sur[1] - y <= 0:
+            if self.sur[1] - y < 0:
                 return 0
             if self.sur[0] == x:
                 if (
@@ -160,3 +160,49 @@ class Game:
                 and x != self.empasant[0]
             ):
                 return 0
+            if y == 7:
+                self.board[self.sur[1]][self.sur[0]][0] = 11
+
+        self.empasant = [-1, -1]
+        if self.board[self.sur[1]][self.sur[0]][0] in [2, 8]:  # kon
+            if abs(x - self.sur[0]) != 1 or abs(y - self.sur[1]) != 2:
+                if abs(x - self.sur[0]) != 2 or abs(y - self.sur[1]) != 1:
+                    return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] in [3, 9]:  # strelec
+            if abs(x - self.sur[0]) != abs(y - self.sur[1]):
+                return 0
+            h, v = 1 if x - self.sur[0] > 0 else -1, 1 if y - self.sur[1] > 0 else -1
+            for i in range(1, 10):
+                if self.sur[0] + h * i == x and self.sur[1] + v * i == y:
+                    break
+                if self.board[self.sur[1] + v * i][self.sur[0] + h * i][0] != 0:
+                    return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] in [4, 10]:  # veza
+            if x == self.sur[0] and y != self.sur[1]:
+                if any(
+                    self.board[i][x][0] != 0
+                    for i in range(min(y, self.sur[1]) + 1, max(y, self.sur[1]))
+                ):
+                    return 0
+            elif x != self.sur[0] and y == self.sur[1]:
+                if any(
+                    self.board[y][i][0] != 0
+                    for i in range(min(x, self.sur[0]) + 1, max(x, self.sur[0]))
+                ):
+                    return 0
+            else:
+                return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] in [5, 11]:  # kralovna
+            if abs(x - self.sur[0]) == abs(y - self.sur[1]):  # je strelec
+                h, v = (
+                    1 if x - self.sur[0] > 0 else -1,
+                    1 if y - self.sur[1] > 0 else -1,
+                )
+                for i in range(1, 10):
+                    if self.sur[0] + h * i == x and self.sur[1] + v * i == y:
+                        break
+                    if self.board[self.sur[1] + v * i][self.sur[0] + h * i][0] != 0:
+                        return 0
