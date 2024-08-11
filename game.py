@@ -206,3 +206,58 @@ class Game:
                         break
                     if self.board[self.sur[1] + v * i][self.sur[0] + h * i][0] != 0:
                         return 0
+
+            elif x == self.sur[0] and y != self.sur[1]:  # je veza
+                if any(
+                    self.board[i][x][0] != 0
+                    for i in range(min(y, self.sur[1]) + 1, max(y, self.sur[1]))
+                ):
+                    return 0
+            elif x != self.sur[0] and y == self.sur[1]:
+                if any(
+                    self.board[y][i][0] != 0
+                    for i in range(min(x, self.sur[0]) + 1, max(x, self.sur[0]))
+                ):
+                    return 0
+            else:
+                return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 6:  # kralb
+            if abs(y - self.sur[1]) > 1 or abs(x - self.sur[0]) > 1:
+                if y - self.sur[1] != 0:
+                    return 0
+                if self.rbl == 0 and self.rbp == 0:
+                    return 0
+                if abs(x - self.sur[0]) != 2:
+                    return 0
+                if x > self.sur[0]:
+                    if not self.rbp or any(
+                        [self.board[7][i][0] != 0 for i in range(5, 7)]
+                    ):
+                        return 0
+                else:
+                    if not self.rbl or any(
+                        [self.board[7][i][0] != 0 for i in range(1, 4)]
+                    ):
+                        return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 12:  # kralc
+            if abs(y - self.sur[1]) > 1 or abs(x - self.sur[0]) > 1:
+                if y - self.sur[1] != 0:
+                    return 0
+                if self.rcl == 0 and self.rcp == 0:
+                    return 0
+                if abs(x - self.sur[0]) != 2:
+                    return 0
+                if x > self.sur[0]:
+                    if not self.rcp or any(
+                        [self.board[0][i][0] != 0 for i in range(5, 7)]
+                    ):
+                        return 0
+                else:
+                    if not self.rcl or any(
+                        [self.board[0][i][0] != 0 for i in range(1, 4)]
+                    ):
+                        return 0
+
+        return 1
