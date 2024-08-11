@@ -261,3 +261,193 @@ class Game:
                         return 0
 
         return 1
+
+    def validator(self, y, x):
+        if (
+            0 < self.board[self.sur[1]][self.sur[0]][0] < 7
+            and 0 < self.board[y][x][0] < 7
+            or self.board[self.sur[1]][self.sur[0]][0] > 6
+            and self.board[y][x][0] > 6
+        ):  # su rovnaka farba
+            return 0
+
+        if self.board[7][4][0] != 6:
+            self.rbl, self.rbp = 0, 0
+        if self.board[7][0][0] != 4:
+            self.rbl = 0
+        if self.board[7][7][0] != 4:
+            self.rbp = 0
+        if self.board[0][4][0] != 12:
+            self.rcl, self.rcp = 0, 0
+        if self.board[0][0][0] != 10:
+            self.rcl = 0
+        if self.board[0][7][0] != 10:
+            self.rcp = 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 1:  # biely pesiak
+            if self.sur[1] - y <= 0:
+                return 0
+            if self.sur[0] == x:
+                if (
+                    self.board[y][x][0] != 0
+                    or self.board[max(0, self.sur[1] - 1)][self.sur[0]][0] != 0
+                ):
+                    return 0
+                if self.sur[1] - y > 1 and self.sur[1] != 6:
+                    return 0
+                if self.sur[1] - y > 2:
+                    return 0
+                if self.sur[1] - y == 2:
+                    self.empasant = [x, y + 1]
+                    return 1
+            elif self.sur[1] - y > 1:
+                return 0
+            elif abs(self.sur[0] - x) > 1:
+                return 0
+            if self.sur[0] != x and (
+                self.board[y][x][0] == 0
+                and (y != self.empasant[1] and x != self.empasant[0])
+            ):
+                return 0
+            if y == self.empasant[1] and x == self.empasant[0]:
+                self.board[self.empasant[1] + 1][self.empasant[0]][0] = 0
+            if y == 0:
+                self.board[self.sur[1]][self.sur[0]][0] = 5
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 7:  # cierny pesiak
+            if y - self.sur[1] <= 0:
+                return 0
+            if self.sur[0] == x:
+                if (
+                    self.board[y][x][0] != 0
+                    or self.board[min(7, self.sur[1] + 1)][self.sur[0]][0] != 0
+                ):
+                    return 0
+                if y - self.sur[1] > 1 and self.sur[1] != 1:
+                    return 0
+                if y - self.sur[1] > 2:
+                    return 0
+                if y - self.sur[1] == 2:
+                    self.empasant = [x, y - 1]
+                    return 1
+            elif y - self.sur[1] > 1:
+                return 0
+            elif abs(self.sur[0] - x) > 1:
+                return 0
+            if self.sur[0] != x and (
+                self.board[y][x][0] == 0
+                and y != self.empasant[1]
+                and x != self.empasant[0]
+            ):
+                return 0
+            if y == self.empasant[1] and x == self.empasant[0]:
+                self.board[self.empasant[1] - 1][self.empasant[0]][0] = 0
+            if y == 7:
+                self.board[self.sur[1]][self.sur[0]][0] = 11
+
+        self.empasant = [-1, -1]
+        if self.board[self.sur[1]][self.sur[0]][0] in [2, 8]:  # kon
+            if abs(x - self.sur[0]) != 1 or abs(y - self.sur[1]) != 2:
+                if abs(x - self.sur[0]) != 2 or abs(y - self.sur[1]) != 1:
+                    return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] in [3, 9]:  # strelec
+            if abs(x - self.sur[0]) != abs(y - self.sur[1]):
+                return 0
+            h, v = 1 if x - self.sur[0] > 0 else -1, 1 if y - self.sur[1] > 0 else -1
+            for i in range(1, 10):
+                if self.sur[0] + h * i == x and self.sur[1] + v * i == y:
+                    break
+                if self.board[self.sur[1] + v * i][self.sur[0] + h * i][0] != 0:
+                    return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] in [4, 10]:  # veza
+            if x == self.sur[0] and y != self.sur[1]:
+                if any(
+                    self.board[i][x][0] != 0
+                    for i in range(min(y, self.sur[1]) + 1, max(y, self.sur[1]))
+                ):
+                    return 0
+            elif x != self.sur[0] and y == self.sur[1]:
+                if any(
+                    self.board[y][i][0] != 0
+                    for i in range(min(x, self.sur[0]) + 1, max(x, self.sur[0]))
+                ):
+                    return 0
+            else:
+                return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] in [5, 11]:  # kralovna
+            if abs(x - self.sur[0]) == abs(y - self.sur[1]):  # je strelec
+                h, v = (
+                    1 if x - self.sur[0] > 0 else -1,
+                    1 if y - self.sur[1] > 0 else -1,
+                )
+                for i in range(1, 10):
+                    if self.sur[0] + h * i == x and self.sur[1] + v * i == y:
+                        break
+                    if self.board[self.sur[1] + v * i][self.sur[0] + h * i][0] != 0:
+                        return 0
+
+            elif x == self.sur[0] and y != self.sur[1]:  # je veza
+                if any(
+                    self.board[i][x][0] != 0
+                    for i in range(min(y, self.sur[1]) + 1, max(y, self.sur[1]))
+                ):
+                    return 0
+            elif x != self.sur[0] and y == self.sur[1]:
+                if any(
+                    self.board[y][i][0] != 0
+                    for i in range(min(x, self.sur[0]) + 1, max(x, self.sur[0]))
+                ):
+                    return 0
+            else:
+                return 0
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 6:  # kralb
+            if abs(y - self.sur[1]) > 1 or abs(x - self.sur[0]) > 1:
+                if y - self.sur[1] != 0:
+                    return 0
+                if self.rbl == 0 and self.rbp == 0:
+                    return 0
+                if abs(x - self.sur[0]) != 2:
+                    return 0
+                if x > self.sur[0]:
+                    if not self.rbp or any(
+                        [self.board[7][i][0] != 0 for i in range(5, 7)]
+                    ):
+                        return 0
+                    self.board[7][7][0] = 0
+                    self.board[7][5][0] = 4
+                else:
+                    if not self.rbl or any(
+                        [self.board[7][i][0] != 0 for i in range(1, 4)]
+                    ):
+                        return 0
+                    self.board[7][0][0] = 0
+                    self.board[7][3][0] = 4
+
+        if self.board[self.sur[1]][self.sur[0]][0] == 12:  # kralc
+            if abs(y - self.sur[1]) > 1 or abs(x - self.sur[0]) > 1:
+                if y - self.sur[1] != 0:
+                    return 0
+                if self.rcl == 0 and self.rcp == 0:
+                    return 0
+                if abs(x - self.sur[0]) != 2:
+                    return 0
+                if x > self.sur[0]:
+                    if not self.rcp or any(
+                        [self.board[0][i][0] != 0 for i in range(5, 7)]
+                    ):
+                        return 0
+                    self.board[0][7][0] = 0
+                    self.board[0][5][0] = 10
+                else:
+                    if not self.rcl or any(
+                        [self.board[0][i][0] != 0 for i in range(1, 4)]
+                    ):
+                        return 0
+                    self.board[0][0][0] = 0
+                    self.board[0][3][0] = 10
+
+        return 1
