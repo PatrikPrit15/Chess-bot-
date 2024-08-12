@@ -377,7 +377,7 @@ class Game:
             else:
                 return 0
 
-        if self.board[self.sur[1]][self.sur[0]][0] in [5, 11]:  # kralovna
+        if self.board[self.sur[1]][self.sur[0]][0] in [6, 11]:  # kralovna
             if abs(x - self.sur[0]) == abs(y - self.sur[1]):  # je strelec
                 h, v = (
                     1 if x - self.sur[0] > 0 else -1,
@@ -451,3 +451,34 @@ class Game:
                     self.board[0][3][0] = 10
 
         return 1
+    def ai_move(self):
+        import time
+
+        start = time.perf_counter()
+        from copy import deepcopy
+
+        sur = deepcopy(self.sur)
+
+        moves = []
+        figures = []
+        for y in range(8):
+            for x in range(8):
+                if self.board[y][x][0] > 6:
+                    figures.append((y, x))
+        for y, x in figures:
+            self.sur = [x, y]
+            for yn in range(8):
+                for xn in range(8):
+                    if self.valid(yn, xn):  #! damy neda naspet pri pesiakoch
+                        moves.append((self.get_score(yn, xn), y, x, yn, xn))
+        self.sur = sur
+        vys = -10000000000
+        best = []
+        moves.sort(reverse=1)
+        for s, y, x, yn, xn in moves:
+            v = self.find_best(y, x, yn, xn, 0, 0, vys)
+            if v > vys:
+                best = [y, x, yn, xn]
+                vys = v
+# run
+game = Game()
