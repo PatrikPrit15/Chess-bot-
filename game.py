@@ -480,5 +480,58 @@ class Game:
             if v > vys:
                 best = [y, x, yn, xn]
                 vys = v
+
+        y, x, yn, xn = best
+        self.sur = [x, y]
+        self.validator(yn, xn)
+        self.board[yn][xn] = self.board[y][x]
+        self.board[y][x] = [0, 0]
+        self.create_board()
+        print(self.counter, time.perf_counter() - start)
+        self.counter = 0
+
+    def find_best(self, y, x, yn, xn, isblack, depth, best):
+
+        from copy import deepcopy
+
+        old = deepcopy(self.board[yn][xn])
+        self.board[yn][xn] = deepcopy(self.board[y][x])
+        self.board[y][x] = [0, 0]
+        if depth < self.maxdepth:
+            moves = []
+            for yl in range(8):
+                for xl in range(8):
+                    if (
+                        self.board[yl][xl][0] > 6
+                        and isblack
+                        or 0 < self.board[yl][xl][0] < 7
+                        and not isblack
+                    ):
+                        self.sur = [xl, yl]
+                        for ynl in range(8):
+                            for xnl in range(8):
+                                if self.valid(ynl, xnl):
+                                    moves.append(
+                                        (self.get_score(yn, xn), yl, xl, ynl, xnl)
+                                    )
+            vys = -10000000000 if isblack else 1000000000
+            moves.sort(reverse=isblack)
+
+            for s, yl, xl, ynl, xnl in moves:
+                v = self.find_best(yl, xl, ynl, xnl, not isblack, depth + 1, vys)
+                if isblack and vys >= best or not isblack and vys <= best:
+                    break
+                vys = max(vys, v) if isblack else min(vys, v)
+            self.board[y][x] = deepcopy(self.board[yn][xn])
+            self.board[yn][xn] = old
+
+            return vys
+
+        score = self.score()
+        self.board[y][x] = deepcopy(self.board[yn][xn])
+        self.board[yn][xn] = old
+        self.counter += 1
+        return score
+
 # run
 game = Game()
