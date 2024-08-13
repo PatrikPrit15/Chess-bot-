@@ -1,3 +1,5 @@
+import itertools
+
 
 class Game:
     def __init__(self):
@@ -9,7 +11,7 @@ class Game:
 
         # nic-0, pesiakb-1, konb-2, strelecb-3, vezab-4, kralovnab-5, kralb-6,pesiakc-7, konc-8, strelecc-9, vezac-10, kralovnac-11, kralc-12
         self.board = [
-            [[10, 0], [8, 0], [9, 0], [12, 0], [11, 0], [9, 0], [8, 0], [10, 0]],
+            [[10, 0], [8, 0], [9, 0], [11, 0], [12, 0], [9, 0], [8, 0], [10, 0]],
             [[7, 0] for _ in range(8)],
             [[0, 0] for _ in range(8)],
             [[0, 0] for _ in range(8)],
@@ -39,8 +41,8 @@ class Game:
             farba = not farba
             for x in range(8):
                 self.canvas.create_rectangle(
-                    55 + x * 90,
-                    55 + y * 90,
+                    50 + x * 90,
+                    50 + y * 90,
                     140 + x * 90,
                     140 + y * 90,
                     fill="#573a2e" if farba else "#fccc74",
@@ -51,13 +53,14 @@ class Game:
     def init_board(self):
         for y in range(8):
             for x in range(8):
-                if self.board[y][x][0] >= 0:
+                if self.board[y][x][0] > 0:
                     self.board[y][x][1] = self.canvas.create_image(
-                        90 + 90 * x,
+                        95 + 90 * x,
                         95 + 90 * y,
                         image=self.images[self.board[y][x][0] - 1],
                     )
         self.canvas.update()
+
     def loadimages(self):
         import tkinter as tk
 
@@ -68,13 +71,14 @@ class Game:
             for b in range(8):
                 self.canvas.delete(self.board[a][b][1])
         self.init_board()
+
     def klik(self, event):
-        if 0 <= (event.y - 50) // 90 < 7 and 0 <= (event.x - 50) // 90 < 7:
+        if 0 <= (event.y - 50) // 90 <= 7 and 0 <= (event.x - 50) // 90 <= 7:
             self.sur[0] = (event.x - 50) // 90
             self.sur[1] = (event.y - 50) // 90
 
     def drag(self, event):
-        if 0 <= (event.y - 50) // 90 < 7 and 0 <= (event.x - 50) // 90 <= 7:
+        if 0 <= (event.y - 50) // 90 <= 7 and 0 <= (event.x - 50) // 90 <= 7:
             self.canvas.coords(
                 self.board[self.sur[1]][self.sur[0]][1], event.x, event.y
             )
@@ -101,7 +105,7 @@ class Game:
 
     def valid(self, y, x):
         if (
-            0 < self.board[self.sur[1]][self.sur[0]][0] <= 7
+            0 < self.board[self.sur[1]][self.sur[0]][0] < 7
             and 0 < self.board[y][x][0] < 7
             or self.board[self.sur[1]][self.sur[0]][0] > 6
             and self.board[y][x][0] > 6
@@ -109,7 +113,7 @@ class Game:
             return 0
 
         if self.board[self.sur[1]][self.sur[0]][0] == 1:  # biely pesiak
-            if self.sur[1] - y < 0:
+            if self.sur[1] - y <= 0:
                 return 0
             if self.sur[0] == x:
                 if (
@@ -377,7 +381,7 @@ class Game:
             else:
                 return 0
 
-        if self.board[self.sur[1]][self.sur[0]][0] in [6, 11]:  # kralovna
+        if self.board[self.sur[1]][self.sur[0]][0] in [5, 11]:  # kralovna
             if abs(x - self.sur[0]) == abs(y - self.sur[1]):  # je strelec
                 h, v = (
                     1 if x - self.sur[0] > 0 else -1,
@@ -451,6 +455,7 @@ class Game:
                     self.board[0][3][0] = 10
 
         return 1
+
     def ai_move(self):
         import time
 
@@ -532,6 +537,30 @@ class Game:
         self.board[yn][xn] = old
         self.counter += 1
         return score
+
+    def score(self):
+        return sum(
+            self.get_score(y, x) for y, x in itertools.product(range(8), range(8))
+        )
+
+    def get_score(self, y, x):
+        dic = {
+            0: 0,
+            1: -1,
+            2: -3,
+            3: -3,
+            4: -5,
+            5: -9,
+            6: -10000,
+            7: 1,
+            8: 3,
+            9: 3,
+            10: 5,
+            11: 9,
+            12: 10000,
+        }
+        return dic[self.board[y][x][0]]
+
 
 # run
 game = Game()
